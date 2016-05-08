@@ -39,6 +39,7 @@ Paste here
   #Convert basin layer to vector
   
 #Union basins and burn severity
+  #Add layer to map with style
 
 #Data table analysis...
   

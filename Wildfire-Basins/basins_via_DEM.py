@@ -6,7 +6,10 @@
 #NOTES: 
 
 
-#Startup code for running script in QGIS console
+#########################
+#Startup code for QGIS
+#########################
+
 import os
 from PyQt4.QtCore import * 
 
@@ -29,12 +32,13 @@ QgsApplication.initQgis()
 #####################
 
 #Variable list - Input parameters for each individual wildfire analysis 
+#Currently all files need to be the same WGS84 UTM zone 
 FIRE_NAME = "Hayman"
 DEM = "P:/QGIS/WildfireChem Project/Hayman_py/DEM/Hayman_UTM_DEM.tif"
 FIRE_SHAPE = "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Hayman_UTM_shape.shp" 
 #SEVRT =
 Stream_size = 10000
-Fire_buffer = 10000
+Fire_buffer = 100
 
 
 #Load full size DEM - Download 1/3 arc second from USGS
@@ -65,7 +69,7 @@ if not fire_ifacelayer:
   
 #Create buffer around fire shape
 QgsGeometryAnalyzer().buffer(fire_layer, "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Buffer.shp", 50, False, False, -1)
-#??? Doesn't work? no crs?
+#??? Doesn't work? no crs for output buffer?
 
 
 

@@ -6,21 +6,17 @@
 #NOTES: 
 
 
-#########################
-#Startup code for QGIS
-#########################
-
+#Startup code for running script in QGIS console
 import os
 from PyQt4.QtCore import * 
+from qgis.core import *
+from qgis.analysis import *
 
 settings = QSettings()
 settings.setValue("pythonConsole/lastDirPath", QDir.homePath())
 
-from qgis.core import *
-from qgis.analysis import *
-
 # supply path to where is your qgis installed
-QgsApplication.setPrefixPath("E:/Program Files/QGIS Essen/bin", True)
+#QgsApplication.setPrefixPath("E:/Program Files/QGIS Essen/bin", True)
 print "Current working dir : %s" % os.getcwd()
 
 # load providers
@@ -32,44 +28,73 @@ QgsApplication.initQgis()
 #####################
 
 #Variable list - Input parameters for each individual wildfire analysis 
-#Currently all files need to be the same WGS84 UTM zone 
 FIRE_NAME = "Hayman"
 DEM = "P:/QGIS/WildfireChem Project/Hayman_py/DEM/Hayman_UTM_DEM.tif"
 FIRE_SHAPE = "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Hayman_UTM_shape.shp" 
 #SEVRT =
 Stream_size = 10000
-Fire_buffer = 100
+Fire_buffer = 10000
+
+#Set project projection (aka "crs")
+mycrs = QgsCoordinateReferenceSystem(32613)  #32613 = WGS84 UTM Zone 13N
+iface.mapCanvas().mapRenderer().setDestinationCrs(mycrs)  # set CRS to canvas
+#vlayer.setCrs(mycrs,True)#set CRS to vector layer. I'm not sure True param. is neccesary
+#QgsMapLayerRegistry.instance().addMapLayer(vlayer)
+print "QGIS CRS ID:", mycrs.srsid()
+print "Description:", mycrs.description()
+print "Projection Acronym:", mycrs.projectionAcronym()
+print "Ellipsoid Acronym:", mycrs.ellipsoidAcronym()
+# check whether it's geographic or projected coordinate system
+print "Is geographic:", mycrs.geographicFlag()
+# check type of map units in this CRS (values defined in QGis::units enum)
+print "Map units:", mycrs.mapUnits() # meters = 0, degrees = 2
 
 
 #Load full size DEM - Download 1/3 arc second from USGS
 fileInfo = QFileInfo(DEM)
 baseName = fileInfo.baseName()
 rlayer = QgsRasterLayer(DEM, baseName)
-if not rlayer.isValid():
-  print "Layer failed to load!"
+
+if rlayer.isValid():
+  print "DEM loaded successfully!"
+else:
+    print "Layer failed to load!"
 
 #??? How to project raster from NAD83 to UTM Zone 13N
 
 #Add rastor layer to interface
 ifaceraslayer = iface.addRasterLayer(DEM, FIRE_NAME + "_DEM")
-if not ifaceraslayer:
-  print "Layer failed to load!"
+if ifaceraslayer.isValid():
+  print "Raster added to canvas successfully!"
+else:
+    print "Raster failed to load to canvas!"
 
 
 #Load wildfire shapefile
 #Import vector layer from file
 fire_layer = QgsVectorLayer(FIRE_SHAPE, FIRE_NAME + "_Shape", "ogr")
-if not fire_layer.isValid():
-  print "Layer failed to load!"
+if fire_layer.isValid():
+  print "Fire shape layer loaded successfully!"
+else:
+  print "Fire shape failed to load!" 
+
+#Set fire layer crs
+#fire_layer.setCrs(mycrs,True)
 
 #Load vector layer to interface
 fire_ifacelayer = iface.addVectorLayer(FIRE_SHAPE, FIRE_NAME + "_Shape", "ogr")
-if not fire_ifacelayer:
-  print "Layer failed to load!"  
-  
+if fire_ifacelayer.isValid():
+  print "Fire layer added to canvas successfully!"
+else:
+    print "Fire layer failed to load to canvas!"
+
+
 #Create buffer around fire shape
 QgsGeometryAnalyzer().buffer(fire_layer, "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Buffer.shp", 50, False, False, -1)
-#??? Doesn't work? no crs for output buffer?
+
+
+
+
 
 
 

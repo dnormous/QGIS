@@ -14,6 +14,7 @@ settings = QSettings()
 settings.setValue("pythonConsole/lastDirPath", QDir.homePath())
 
 from qgis.core import *
+from qgis.analysis import *
 
 # supply path to where is your qgis installed
 QgsApplication.setPrefixPath("E:/Program Files/QGIS Essen/bin", True)
@@ -30,7 +31,7 @@ QgsApplication.initQgis()
 #Variable list - Input parameters for each individual wildfire analysis 
 FIRE_NAME = "Hayman"
 DEM = "P:/QGIS/WildfireChem Project/Hayman_py/DEM/Hayman_UTM_DEM.tif"
-FIRE_SHAPE = "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Hayman_shape.shp" 
+FIRE_SHAPE = "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Hayman_UTM_shape.shp" 
 #SEVRT =
 Stream_size = 10000
 Fire_buffer = 10000
@@ -62,9 +63,13 @@ fire_ifacelayer = iface.addVectorLayer(FIRE_SHAPE, FIRE_NAME + "_Shape", "ogr")
 if not fire_ifacelayer:
   print "Layer failed to load!"  
   
-#??? How to project to UTM from current crs
+#Create buffer around fire shape
+QgsGeometryAnalyzer().buffer(fire_layer, "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Buffer.shp", 50, False, False, -1)
+#??? Doesn't work? no crs?
 
-#Create "square" buffer from fire shape
+
+
+
 
 #Load wildfire burn severity layer
 

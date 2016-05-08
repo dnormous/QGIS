@@ -29,7 +29,7 @@ QgsApplication.initQgis()
 
 #Variable list - Input parameters for each individual wildfire analysis 
 FIRE_NAME = "Hayman"
-DEM = "P:/QGIS/WildfireChem Project/Hayman_py/DEM/USGS_NED_1_n40w106_IMG.img"
+DEM = "P:/QGIS/WildfireChem Project/Hayman_py/DEM/Hayman_UTM_DEM.tif"
 FIRE_SHAPE = "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Hayman_shape.shp" 
 #SEVRT =
 Stream_size = 10000
@@ -43,12 +43,28 @@ rlayer = QgsRasterLayer(DEM, baseName)
 if not rlayer.isValid():
   print "Layer failed to load!"
 
-  #Project to UTM for USA
+#??? How to project raster from NAD83 to UTM Zone 13N
+
+#Add rastor layer to interface
+ifaceraslayer = iface.addRasterLayer(DEM, FIRE_NAME + "_DEM")
+if not ifaceraslayer:
+  print "Layer failed to load!"
 
 
 #Load wildfire shapefile
-  #Project to UTM for USA
-  #Create "square" buffer from fire shape
+#Import vector layer from file
+fire_layer = QgsVectorLayer(FIRE_SHAPE, FIRE_NAME + "_Shape", "ogr")
+if not fire_layer.isValid():
+  print "Layer failed to load!"
+
+#Load vector layer to interface
+fire_ifacelayer = iface.addVectorLayer(FIRE_SHAPE, FIRE_NAME + "_Shape", "ogr")
+if not fire_ifacelayer:
+  print "Layer failed to load!"  
+  
+#??? How to project to UTM from current crs
+
+#Create "square" buffer from fire shape
 
 #Load wildfire burn severity layer
 

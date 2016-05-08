@@ -1,7 +1,7 @@
 #DESCRIPTION:  Build drainage basins around a wildfire from DEM. Overlay burn severity and extract burn extent by drainage.
 #AUTHOR: dnormous
-#STATUS: Active development - not yet fully functional
-#LAST REVISED: May 8, 2016
+#STATUS: Active development - non-functional
+#LAST REVISED: May 7, 2016
 
 #NOTES: 
 
@@ -12,6 +12,8 @@ from PyQt4.QtCore import *
 from qgis.core import *
 from qgis.analysis import *
 import processing
+
+
 
 settings = QSettings()
 settings.setValue("pythonConsole/lastDirPath", QDir.homePath())
@@ -117,14 +119,21 @@ processing.runalg("gdalogr:cliprasterbymasklayer",
     "-9999",False,False,False,5,4,75,6,1,False,0,False,"",
     PATH + "DEM/" + FIRE_NAME + "_DEM_BUFFER.tif")
 
+#Find DEM buffer extent (xmin, xmax, ymin, ymax)
+ext =rlayer.extent()
+    #dir(ext)
+DEMBFxmin = ext.xMinimum
+DEMBFxmax = ext.xMaximum
+DEMBFymin = ext.yMinimum
+DEMBFymax = ext.yMaximum
+
 #Run r.watershed on clipped DEM
 processing.runalg("grass7:r.watershed",
 "P:/QGIS/WildfireChem Project/Hayman_py/DEM/Hayman_DEM_BUFFER.tif",
 None,None,None,None,
 10000,
 0,5,300,False,False,False,False,False,
-"413260.962637,500133.109617,4316595.81034,4428422.65095", #Region (Raster?) extent??? Leave blank? Can I get extent values?
-0,
+DEMBFxmin, DEMBFxmax, DEMBFymin, DEMBFymax, 0,
 PATH + "Watershed Output/" + "FlowAcc.tif",
 PATH + "Watershed Output/" + "FlowDir.tif",
 PATH + "Watershed Output/" + "Basins.tif",
@@ -133,13 +142,12 @@ PATH + "Watershed Output/" + "HalfBasins.tif",
 PATH + "Watershed Output/" + "SlopeLSteep.tif",
 PATH + "Watershed Output/" + "Steep.tif",
 PATH + "Watershed Output/" + "TopoIndex.tif")
-  
-  
-#Convert stream layer to vector
-#Convert basin layer to vector
-#Load burn severity layer
-#Union basins + burn severity
-#Union data table analysis
+ 
+
+
+
+  #Convert stream layer to vector
+  #Convert basin layer to vector
     
     
 

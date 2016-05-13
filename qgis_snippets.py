@@ -57,3 +57,28 @@ if not rlayer.isValid():
 ifaceraslayer = iface.addRasterLayer("P:/QGIS/WildfireChem Project/DEMs/WestUS.tif", "West_US_DEM")
 if not ifaceraslayer:
   print "Layer failed to load!"
+  
+#Define and set raster crs (untested)
+from osgeo import osr, gdal
+from gdalconst import *
+dataset = gdal.Open('path_to_my_raster/out_pyqgis.tif', GA_Update)
+band = dataset.GetRasterBand(1)
+srs = osr.SpatialReference()
+srs.ImportFromEPSG(4326)
+dataset.SetProjection( srs.ExportToWkt() )
+dataset = None
+
+#Loop over canvas layers example (unknown code)
+canvas = qgis.utils.iface.mapCanvas()
+allLayers = canvas.layers()
+exp_crs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId)
+for i in allLayers: 
+
+    if i.type() != 0 :
+        print(i.name() + " skipped as it is not a vector layer")
+    if i.type() == 0 :
+        #exp_crs = QgsCoordinateReferenceSystem(4326,QgsCoordinateReferenceSystem.PostgisCrsId)
+        print i.crs()
+        print exp_crs
+        qgis.core.QgsVectorFileWriter.writeAsVectorFormat(i, i.name() + '.js', 'utf-8', exp_crs, 'GeoJSON')
+

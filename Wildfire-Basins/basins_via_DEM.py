@@ -58,6 +58,7 @@ print "Map units:", mycrs.mapUnits() # meters = 0, degrees = 2
 #Variable list - Input parameters for each individual wildfire analysis 
 #Change to user input after ALPHA
 FIRE_NAME = "Hayman"
+FIRE_YEAR = "2002"
 USER_PATH = "P:/QGIS/WildfireChem Project/"
 DEM = "P:/QGIS/WildfireChem Project/Hayman_py/DEM/Hayman_UTM_DEM.tif"
 FIRE_SHAPE = "P:/QGIS/WildfireChem Project/Hayman_py/Shapes/Hayman_UTM_shape.shp" 
@@ -82,6 +83,9 @@ WSOUT_PATH = PARENT_PATH+"Watershed Output/"
 if not os.path.exists(WSOUT_PATH):
     os.makedirs(WSOUT_PATH)
 
+SEVRT_PATH = PARENT_PATH+"Burn Severity/"
+if not os.path.exists(SEVRT_PATH):
+    os.makedirs(SEVRT_PATH)
 
 #Load full size DEM - Download 1/3 arc second from USGS
 DEM_layer = QgsRasterLayer(DEM, FIRE_NAME+"_DEM")
@@ -221,7 +225,22 @@ else:
     print "Stream layer failed to load to canvas!"
 
 
-#add severity shapefile and data
+#Add severity raster for fire year, then clip by fire perimeter, and convert to vector
+SEVRT = "P:/QGIS/WildfireChem Project/Severity Layers/mtbs_CONUS_dt_" + FIRE_YEAR + "_20160401.tif.ovr"
+#SevRas_add = iface.addRasterLayer(SEVRT, FIRE_YEAR + "_Severity")
+
+processing.runalg("gdalogr:cliprasterbymasklayer",
+    SEVRT,
+    FIRE_SHAPE,
+    "-9999",False,False,False,5,4,75,6,1,False,0,False,"",
+    SEVRT_PATH + FIRE_NAME + "_Severity.tif")
+
+SEVRT_add = iface.addRasterLayer(SEVRT_PATH + FIRE_NAME + "_Severity.tif", FIRE_NAME + "_Severity")
+if SEVRT_add.isValid():
+  print "Burn severity raster added to canvas successfully!"
+else:
+    print "Burn severity raster failed to load to canvas!"
+
 
 #union of severity and basins
 

@@ -8,7 +8,8 @@
 
 #Startup code for running script in QGIS console
 import os
-from PyQt4.QtCore import * 
+import sys
+from PyQt4 import QtGui, QtCore
 from qgis.core import *
 from qgis.analysis import *
 import processing
@@ -189,16 +190,42 @@ processing.runalg("grass7:r.to.vect",WSOUT_PATH + "Basins.tif",
 2,False,str(BASxmin()) + ',' + str(BASxmax()) + ',' + str(BASymin()) + ',' + str(BASymax()),0,
 SHAPE_PATH+"Basins.shp")   
 
-#? how to add formatting?
 basin_ifacelayer = iface.addVectorLayer(SHAPE_PATH+"Basins.shp", FIRE_NAME + "_Basins", "ogr")
 if basin_ifacelayer.isValid():
+  print "Watershed analysis completed successfully!"
   print "Basin layer added to canvas successfully!"
 else:
     print "Basin layer failed to load to canvas!"
 
 
-#Convert stream layer to vector
+#? how to add layer formatting?
+#https://snorfalorpagus.net/blog/2014/03/04/symbology-of-vector-layers-in-qgis-python-plugins/
 
+
+#Convert basin layer to vector and add to canvas
+streamlayer = QgsRasterLayer(WSOUT_PATH + "Streams.tif", "Streams")
+STRMext =streamlayer.extent()
+STRMxmin = STRMext.xMinimum
+STRMxmax = STRMext.xMaximum
+STRMymin = STRMext.yMinimum
+STRMymax = STRMext.yMaximum
+
+processing.runalg("grass7:r.to.vect",WSOUT_PATH + "Streams.tif",
+2,False,str(STRMxmin()) + ',' + str(STRMxmax()) + ',' + str(STRMymin()) + ',' + str(STRMymax()),0,
+SHAPE_PATH+"Streams.shp")   
+
+stream_ifacelayer = iface.addVectorLayer(SHAPE_PATH+"Streams.shp", FIRE_NAME + "_Streams", "ogr")
+if stream_ifacelayer.isValid():
+  print "Stream layer added to canvas successfully!"
+else:
+    print "Stream layer failed to load to canvas!"
+
+
+#add severity shapefile and data
+
+#union of severity and basins
+
+#data analysis...
 
 
     
